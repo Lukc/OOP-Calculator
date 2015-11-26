@@ -3,10 +3,13 @@ local rex = require "rex_posix"
 
 local _M = {}
 
+local lexerPattern = "([a-zA-Z]+|[()]|[a-zA-Z0-9]+|[0-9]+\\.[0-9]*|[+-/*−÷×=])"
+
+-- Lexing made easy. Lulz.
 local function lex(str)
 	local lexemes = {}
 
-	for i in rex.gmatch(str, "([a-zA-Z]+|[()]|[a-zA-Z0-9]+|[0-9]+\\.[0-9]*|[+-/*−÷×=])") do
+	for i in rex.gmatch(str, lexerPattern) do
 		lexemes[#lexemes+1] = i
 	end
 
@@ -31,9 +34,10 @@ local Assignment = {
 
 local Product = {
 	parse = function(lexemes, start, _end)
-		for i = start, _end do
+		for i = _end, start, -1 do
 			local str = lexemes[i]
 
+			-- FIXME: Aliases, bro’.
 			for _, char in pairs{"*", "/", "÷", "×"} do
 				if str == char then
 					return {
@@ -162,17 +166,14 @@ local Variable = {
 -- Note: sorted by priority. Higher priorities first.
 local expressions = {
 	Assignment,
-	Product,
 	FunctionCall,
 	Parenthesis,
 	Sum,
+	Product,
 	Number,
 	Variable
 }
 
--- FIXME: grooming
---   - Make a separate function for each and every single syntaxic element
---     we’re trying to identify.
 function _M.parse(lexemes, start, _end)
 	if not start then start = 1 end
 	if not _end then _end = #lexemes end
@@ -193,5 +194,5 @@ end
 
 local pprint = require "pprint"
 
-pprint(_M.parse(lex("f(x, y) = (43 + 2.5) / 4 * cos(2)")))
+pprint(_M.parse(lex("f(x, y) = (43 + 2.5) / (4 * cos(2))")))
 
