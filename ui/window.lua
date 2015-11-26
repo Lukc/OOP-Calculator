@@ -6,10 +6,6 @@ local Widget = require "ui.widget"
 
 local _M = {}
 
-function _M:run()
-	print("<not-impl: Window.run>")
-end
-
 function _M:onEvent(event)                       
 	if event.type == sdl.event.Quit then         
 		os.exit(0)                               
@@ -38,7 +34,7 @@ function _M:new(arg)
 		title = arg.title,
 
 		width = arg.width,
-		height = arg.height,
+		height = arg.height
 	}
 
 	if not self.window then
@@ -50,6 +46,8 @@ function _M:new(arg)
 	if not self.renderer then
 		return nil, err
 	end
+
+	self.window:setMinimumSize(arg.minWidth or 0, arg.minHeight or 0)
 end
 
 return Object(_M, Widget)

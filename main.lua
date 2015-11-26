@@ -7,8 +7,8 @@ local w = ui.Window {
 	title = "Calooplator",
 	flags = { sdl.window.Resizable },
 
-	width = 800,
-	height = 600,
+	minWidth = 800,
+	minHeight = 600,
 
 	onExit = function() os.exit(0) end,
 
