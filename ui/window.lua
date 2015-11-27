@@ -1,5 +1,6 @@
 
 local sdl = require "SDL"
+local ttf = require "SDL.ttf"
 
 local Object = require "object"
 local Widget = require "ui.widget"
@@ -22,6 +23,22 @@ function _M:onEvent(event)
 	end                                          
 end                                              
 
+local function registerRoot(root, element)
+	element.root = root
+
+	for i = 1, #element.children do
+		local child = element.children[i]
+
+		registerRoot(root, child)
+	end
+end
+
+function _M:addChild(child)
+	Widget.addChild(self, child)
+
+	registerRoot(self, self)
+end
+
 function _M:update()
 	self.realWidth, self.realHeight = self.window:getSize()
 
@@ -31,9 +48,20 @@ end
 function _M:new(arg)
 	Widget.new(self, arg)
 
+	self.root = self
+	self.focused = {}
+
+	self.fonts = {}
+
 	local r, err = sdl.init {
 		sdl.flags.Video
 	}
+
+	if not r then
+		return nil, err
+	end
+
+	r, err = ttf.init()
 
 	if not r then
 		return nil, err
@@ -55,6 +83,13 @@ function _M:new(arg)
 
 	if not self.renderer then
 		return nil, err
+	end
+
+	-- Default font. In case nothing else could be found later.
+	self.fonts[1], err = ttf.open("DejaVuSans.ttf", 36)
+
+	if not self.fonts[1] then
+		print(err)
 	end
 
 	self.window:setMinimumSize(arg.minWidth or 0, arg.minHeight or 0)

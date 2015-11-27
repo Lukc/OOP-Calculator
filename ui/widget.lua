@@ -15,23 +15,9 @@ _M.realHeight = 0
 _M.x = 0
 _M.y = 0
 
-function _M:getRoot()
-	local element = self
-
-	while element.parent do
-		element = element.parent
-	end
-
-	return element
-end
-
 function _M:addChild(child)
 	self.children[#self.children+1] = child
 	child.parent = self
-
-	if child.id then
-		self:getRoot().ids[child.id] = child
-	end
 
 	return self
 end
@@ -76,8 +62,26 @@ function _M:clickHandler(event)
 			event.y >= self.y and
 			event.y < self.y + self.realHeight
 
-		if isIn and self.onClick then
-			r = self:onClick(event)
+		if isIn then
+			if self.onClick then
+				r = self:onClick(event)
+
+				if not r then
+					r = true
+				end
+			end
+
+			if not r then
+				for i = 1, #self.children do
+					local child = self.children[i]
+
+					r = child:clickHandler(event)
+
+					if r then
+						return r
+					end
+				end
+			end
 		end
 	end
 end
@@ -114,6 +118,24 @@ function _M:update()
 	end
 
 	self:updateChildren()
+end
+
+function _M:setFocus()
+	local root = self.root
+
+	for i = 1, #root.focused do
+		root.focused[i].focused = false
+		root.focused[i] = nil
+	end
+
+	local e = self
+	while e.parent do
+		e.focused = true
+
+		root.focused[#root.focused+1] = e
+
+		e = e.parent
+	end
 end
 
 function _M:new(arg)

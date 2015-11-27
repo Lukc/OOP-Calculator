@@ -3,25 +3,26 @@ local sdl = require "SDL"
 
 local Object = require "object"
 
-local Widget  = require "ui.widget"
-local Window  = require "ui.window"
-local Column  = require "ui.column"
-local Row     = require "ui.row"
-local DrawBox = require "ui.drawbox"
-local Button  = require "ui.button"
+local Widget    = require "ui.widget"
+local Window    = require "ui.window"
+local Column    = require "ui.column"
+local Row       = require "ui.row"
+local DrawBox   = require "ui.drawbox"
+local Button    = require "ui.button"
+local TextInput = require "ui.textinput"
 
 local _M = {
-	Widget  = Widget,
-	Window  = Window,
-	Column  = Column,
-	Row     = Row,
-	DrawBox = DrawBox,
-	Button  = Button
+	Widget    = Widget,
+	Window    = Window,
+	Column    = Column,
+	Row       = Row,
+	DrawBox   = DrawBox,
+	Button    = Button,
+	TextInput = TextInput
 }
 
 function _M:run(elements)
 	for e in sdl.pollEvent() do
-		print(e, #elements)
 		local i = 1
 		while i <= #elements do
 			local element = elements[i]

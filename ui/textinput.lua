@@ -16,11 +16,13 @@ function _M:new(arg)
 
 	self.label = arg.label
 
-	self.onClick = arg.onClick
-
 	if arg.label then
 		self:setLabel(arg.label)
 	end
+end
+
+function _M:onClick(event)
+	self:setFocus()
 end
 
 function _M:setLabel(text)
@@ -49,9 +51,11 @@ function _M:draw(renderer)
 		y = self.y or 0
 	}
 
-	-- FIXME: Print text.
-
-	renderer:setDrawColor(0xFF00FF)
+	if self.focused then
+		renderer:setDrawColor(0xFF00FF)
+	else
+		renderer:setDrawColor(0x880088)
+	end
 	renderer:drawRect(rectangle)
 
 	if self.label then
