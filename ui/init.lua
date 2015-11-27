@@ -8,33 +8,28 @@ local Window  = require "ui.window"
 local Column  = require "ui.column"
 local Row     = require "ui.row"
 local DrawBox = require "ui.drawbox"
+local Button  = require "ui.button"
 
 local _M = {
 	Widget  = Widget,
 	Window  = Window,
 	Column  = Column,
 	Row     = Row,
-	DrawBox = DrawBox
+	DrawBox = DrawBox,
+	Button  = Button
 }
 
 function _M:run(elements)
 	for e in sdl.pollEvent() do
-		if e.type == sdl.event.Quit then
-			for i = 1, #elements do
-				elements[i]:onEvent(e)
-			end
-		else
-			local i = 1
-			while i < #elements do
-				local element = elements[i]
+		print(e, #elements)
+		local i = 1
+		while i <= #elements do
+			local element = elements[i]
 
-				if element.window and element.window:getID() == e.windowID then
-					element:onEvent(e)
-
-					i = #elements
-				else
-					i = i + 1
-				end
+			if element:onEvent(e) then
+				i = #elements
+			else
+				i = i + 1
 			end
 		end
 	end

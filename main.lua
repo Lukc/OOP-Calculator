@@ -38,7 +38,12 @@ local w = ui.Window {
 				-- Formulae, at least. Edition boxes would be nice as well.
 
 				-- Tests. Should be text input boxes.
-				ui.Widget { width = math.huge, height = 72 },
+				ui.Button {
+					width = math.huge, height = 72, label = "Click me!",
+					onClick = function(event)
+						print("bleh!!!")
+					end
+				},
 				ui.Widget { width = math.huge, height = 72 },
 				ui.Widget { width = math.huge, height = 72 },
 

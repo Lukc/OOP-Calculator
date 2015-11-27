@@ -8,7 +8,17 @@ local _M = {}
 
 function _M:onEvent(event)                       
 	if event.type == sdl.event.Quit then         
-		os.exit(0)                               
+		os.exit(0)
+	elseif event.windowID == self.window:getID() then
+		for i = 1, #self.children do
+			local child = self.children[i]
+
+			local r = child:onEvent(event)
+
+			if r then
+				return
+			end
+		end
 	end                                          
 end                                              
 

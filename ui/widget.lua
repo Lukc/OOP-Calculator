@@ -1,4 +1,6 @@
 
+local sdl = require "SDL"
+
 local Object = require "object"
 
 local _M = {}
@@ -62,6 +64,38 @@ function _M:updateChildren()
 
 		if child then
 			child:update()
+		end
+	end
+end
+
+function _M:clickHandler(event)
+	if event.type == sdl.event.MouseButtonUp then
+		local isIn =
+			event.x >= self.x and
+			event.x < self.x + self.realWidth and
+			event.y >= self.y and
+			event.y < self.y + self.realHeight
+
+		if isIn and self.onClick then
+			r = self:onClick(event)
+		end
+	end
+end
+
+function _M:onEvent(event)
+	for i = 1, #self.children do
+		local child = self.children[i]
+		local r
+
+		r = child:clickHandler(event)
+
+		if not r then
+			-- Generic/Unknown event handler.
+			r = child:onEvent(event)
+		end
+
+		if r then
+			return r
 		end
 	end
 end
