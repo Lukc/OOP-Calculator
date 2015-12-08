@@ -1,4 +1,5 @@
 
+local sdl = require "SDL"
 local ttf = require "SDL.ttf"
 
 local Object = require "object"
@@ -19,6 +20,36 @@ function _M:new(arg)
 	if arg.label then
 		self:setLabel(arg.label)
 	end
+
+	if arg.onKeyUp then
+		self.customKeyUp = arg.onKeyUp
+	end
+
+	self.labelText = ""
+end
+
+function _M:onKeyUp(event)
+	local r
+	
+	if self.customKeyUp then
+		r = self:customKeyUp(event)
+	end
+
+	local key
+
+	for k,v in pairs(event.keysym) do
+		print(k,v)
+	end
+
+	for k,v in pairs(sdl.key) do
+		if v == event.keysym.sym then
+			key = k
+
+			break
+		end
+	end
+
+	_M:setLabel(self.labelText .. key)
 end
 
 function _M:onClick(event)
@@ -33,11 +64,23 @@ end
 function _M:update()
 	Widget.update(self)
 
+	local err
+
 	if self.labelUpdate then
-		self.label =
+		self.label, err =
 			self.root.fonts[1]:renderUtf8(self.labelText, "solid", 0xFFFFFF)
-		self.labelTexture =
-			self.root.renderer:createTextureFromSurface(self.label)
+
+		if err then
+			-- Commented out, because flood.
+			--print(err)
+		end
+
+		if self.label then
+			print("Texture update!!!")
+
+			self.labelTexture =
+				self.root.renderer:createTextureFromSurface(self.label)
+		end
 
 		self.labelUpdate = nil
 	end

@@ -86,12 +86,44 @@ function _M:clickHandler(event)
 	end
 end
 
+function _M:keyboardHandler(event)
+	if event.type == sdl.event.KeyUp and self.focused then
+		local r
+
+		if self.onKeyUp then
+			r = self:onKeyUp(event)
+
+			if not r then
+				r = true
+			end
+		end
+
+		if not r then
+			for i = 1, #self.children do
+				local child = self.children[i]
+
+				if child.focused then
+					r = child:keyboardHandler(event)
+
+					if r then
+						return r
+					end
+				end
+			end
+		end
+	end
+end
+
 function _M:onEvent(event)
 	for i = 1, #self.children do
 		local child = self.children[i]
 		local r
 
 		r = child:clickHandler(event)
+
+		if not r then
+			r = child:keyboardHandler(event)
+		end
 
 		if not r then
 			-- Generic/Unknown event handler.
