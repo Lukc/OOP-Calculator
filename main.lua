@@ -25,7 +25,7 @@ local w = ui.Window {
 			width = math.huge,
 
 			-- Tests. Should be text boxes/labels.
-			ui.Widget { width = 120, height = math.huge },
+			ui.Button { width = 120, height = math.huge, label = "Test" },
 			ui.Widget { width = 120, height = math.huge },
 			ui.Widget { width = 120, height = math.huge },
 		},

@@ -92,10 +92,6 @@ function _M:keyboardHandler(event)
 
 		if self.onKeyUp then
 			r = self:onKeyUp(event)
-
-			if not r then
-				r = true
-			end
 		end
 
 		if not r then

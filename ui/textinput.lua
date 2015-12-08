@@ -17,6 +17,8 @@ function _M:new(arg)
 
 	self.label = arg.label
 
+	self.labelText = ""
+
 	if arg.label then
 		self:setLabel(arg.label)
 	end
@@ -25,21 +27,21 @@ function _M:new(arg)
 		self.customKeyUp = arg.onKeyUp
 	end
 
-	self.labelText = ""
+	self.labelUpdate = false
 end
 
 function _M:onKeyUp(event)
 	local r
-	
+
 	if self.customKeyUp then
 		r = self:customKeyUp(event)
 	end
 
-	local key
-
-	for k,v in pairs(event.keysym) do
-		print(k,v)
+	if r then
+		return r
 	end
+
+	local key
 
 	for k,v in pairs(sdl.key) do
 		if v == event.keysym.sym then
@@ -49,7 +51,17 @@ function _M:onKeyUp(event)
 		end
 	end
 
-	_M:setLabel(self.labelText .. key)
+	if key then
+		print(key .. " pressed")
+
+		if key == "Backspace" then
+			self:setLabel(self.labelText:sub(1, #self.labelText - 1))
+		else
+			self:setLabel(self.labelText .. key)
+		end
+	end
+
+	return true
 end
 
 function _M:onClick(event)
@@ -63,6 +75,10 @@ end
 
 function _M:update()
 	Widget.update(self)
+
+	if self.textLabel then
+		print(self.textLabel)
+	end
 
 	local err
 
