@@ -7,6 +7,18 @@ local Widget = require "ui.widget"
 
 local _M = {}
 
+_M.knownKeys = {
+	LeftParen = "(",
+	RightParen = ")",
+	Space = " ",
+	Equals = "=",
+	Percent = "%",
+	Slash = "/",
+	Asterisk = "*",
+	Minus = "-",
+	Plus = "+"
+}
+
 ---
 -- @todo Text color.
 -- @todo Text alignments (vertical AND horizontal).
@@ -52,12 +64,20 @@ function _M:onKeyUp(event)
 	end
 
 	if key then
-		print(key .. " pressed")
-
 		if key == "Backspace" then
-			self:setLabel(self.labelText:sub(1, #self.labelText - 1))
-		else
+			if #self.labelText > 0 then
+				self:setLabel(self.labelText:sub(1, #self.labelText - 1))
+			end
+		elseif #key == 1 then
 			self:setLabel(self.labelText .. key)
+		else
+			local k = _M.knownKeys[key]
+
+			if k then
+				self:setLabel(self.labelText .. k)
+			else
+				io.stderr:write("<TextInput> Unhandled key: ", key, "\n")
+			end
 		end
 	end
 
@@ -76,27 +96,13 @@ end
 function _M:update()
 	Widget.update(self)
 
-	if self.textLabel then
-		print(self.textLabel)
-	end
-
 	local err
 
 	if self.labelUpdate then
 		self.label, err =
 			self.root.fonts[1]:renderUtf8(self.labelText, "solid", 0xFFFFFF)
-
-		if err then
-			-- Commented out, because flood.
-			--print(err)
-		end
-
-		if self.label then
-			print("Texture update!!!")
-
-			self.labelTexture =
-				self.root.renderer:createTextureFromSurface(self.label)
-		end
+		self.labelTexture =
+			self.root.renderer:createTextureFromSurface(self.label)
 
 		self.labelUpdate = nil
 	end

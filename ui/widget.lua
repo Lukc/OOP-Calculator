@@ -92,18 +92,20 @@ function _M:keyboardHandler(event)
 
 		if self.onKeyUp then
 			r = self:onKeyUp(event)
+
+			if r then
+				return r
+			end
 		end
 
-		if not r then
-			for i = 1, #self.children do
-				local child = self.children[i]
+		for i = 1, #self.children do
+			local child = self.children[i]
 
-				if child.focused then
-					r = child:keyboardHandler(event)
+			if child.focused then
+				r = child:keyboardHandler(event)
 
-					if r then
-						return r
-					end
+				if r then
+					return r
 				end
 			end
 		end
