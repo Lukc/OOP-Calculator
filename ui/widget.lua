@@ -23,6 +23,22 @@ function _M:addChild(child)
 	return self
 end
 
+---
+-- @todo We might want to remove the child from the list of focused thingies.
+--       Won’t be an issue in the project that stuff was written for, but it
+--       is one for the general case.
+function _M:removeChild(child)
+	for i = 1, #self.children do
+		if self.children[i] == child then
+			for j = i, #self.children do
+					self.children[j] = self.children[j+1]
+			end
+
+			return i
+		end
+	end
+end
+
 function _M:drawChildren(renderer)
 	for i = 1, #self.children do
 		local child = self.children[i]

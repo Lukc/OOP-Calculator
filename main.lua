@@ -3,6 +3,35 @@ local sdl = require "SDL"
 
 local ui = require "ui.init"
 
+local _M = {}
+
+function _M.FormulaeInput()
+	return ui.TextInput {
+		width = math.huge,
+		height = 72,
+		onNewValue = function(self, v)
+			_M.cleanFormulaeTab(self.parent)
+		end
+	}
+end
+
+function _M.cleanFormulaeTab(e)
+	for i = 2, #e.children do
+		local child = e.children[i]
+
+		if child.labelText == "" then
+			e:removeChild(child)
+
+			break
+		end
+	end
+
+	local child = e.children[#e.children]
+	if child.labelText ~= "" then
+		e:addChild(_M.FormulaeInput{})
+	end
+end
+
 local w = ui.Window {
 	title = "Calooplator",
 	flags = { sdl.window.Resizable },
@@ -37,20 +66,7 @@ local w = ui.Window {
 				-- Add curves’ data here.
 				-- Formulae, at least. Edition boxes would be nice as well.
 
-				-- Tests. Should be text input boxes.
-				ui.TextInput {
-					width = math.huge,
-					height = 72,
-					onNewValue = function(self, v)
-						print(v)
-						if #v > 0 then
-							self.parent:addChild(ui.TextInput {
-								width = math.huge,
-								height = 72
-							})
-						end
-					end
-				},
+				_M.FormulaeInput(),
 
 				update = function(self)
 					self.realHeight = self.root.realHeight - 48
