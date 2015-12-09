@@ -15,24 +15,22 @@ local firstPassExpressions = {
 	{
 		type = "Parenthesis",
 		parse = function(lexemes, start, _end)
-			for i = start, _end do
-				local str = lexemes[i].value
+			local str = lexemes[start].value
 
-				if str == "(" then
-					for j = i + 1, _end do
-						if lexemes[j].value == ")" then
-							return {
-								value = _M.firstPass(lexemes, i + 1, j - 1),
-								type = "sub-expression"
-							}, j
-						end
+			if str == "(" then
+				for j = start + 1, _end do
+					if lexemes[j].value == ")" then
+						return {
+							value = _M.firstPass(lexemes, start + 1, j - 1),
+							type = "sub-expression"
+						}, j
 					end
-
-					return {
-						value = "error",
-						type = "unclosed parenthesis"
-					}
 				end
+
+				return {
+					value = "error",
+					type = "unclosed parenthesis"
+				}
 			end
 		end
 	}
@@ -58,7 +56,7 @@ function _M.firstPass(input, start, _end)
 			if value then
 				matched = true
 
-				index = newIndex
+				index = newIndex + 1
 
 				output[#output+1] = value
 
@@ -69,7 +67,7 @@ function _M.firstPass(input, start, _end)
 		end
 
 		if not matched then
-			--print(input[index].value, "... not matched")
+			print(input[index].value, "... not matched")
 
 			-- Keeping lexemes here.
 			output[#output+1] = input[index]
@@ -77,6 +75,8 @@ function _M.firstPass(input, start, _end)
 			index = index + 1
 		end
 	end
+
+	return output
 end
 
 local secondPassExpressions = {
@@ -99,7 +99,7 @@ local secondPassExpressions = {
 }
 
 function _M.secondPass(input)
-	
+	require("pprint")(input)
 end
 
 setmetatable(_M, {
