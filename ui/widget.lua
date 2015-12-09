@@ -18,6 +18,7 @@ _M.y = 0
 function _M:addChild(child)
 	self.children[#self.children+1] = child
 	child.parent = self
+	child.root = self.root
 
 	return self
 end
@@ -112,6 +113,32 @@ function _M:keyboardHandler(event)
 	end
 end
 
+function _M:textInputHandler(event)
+	if event.type == sdl.event.TextInput and self.focused then
+		local r
+
+		if self.onTextInput then
+			r = self:onTextInput(event)
+
+			if r then
+				return r
+			end
+		end
+
+		for i = 1, #self.children do
+			local child = self.children[i]
+
+			if child.focused then
+				r = child:textInputHandler(event)
+
+				if r then
+					return r
+				end
+			end
+		end
+	end
+end
+
 function _M:onEvent(event)
 	for i = 1, #self.children do
 		local child = self.children[i]
@@ -121,6 +148,10 @@ function _M:onEvent(event)
 
 		if not r then
 			r = child:keyboardHandler(event)
+		end
+
+		if not r then
+			r = child:textInputHandler(event)
 		end
 
 		if not r then

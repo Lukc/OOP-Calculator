@@ -38,9 +38,19 @@ local w = ui.Window {
 				-- Formulae, at least. Edition boxes would be nice as well.
 
 				-- Tests. Should be text input boxes.
-				ui.TextInput { width = math.huge, height = 72 },
-				ui.TextInput { width = math.huge, height = 72 },
-				ui.TextInput { width = math.huge, height = 72 },
+				ui.TextInput {
+					width = math.huge,
+					height = 72,
+					onNewValue = function(self, v)
+						print(v)
+						if #v > 0 then
+							self.parent:addChild(ui.TextInput {
+								width = math.huge,
+								height = 72
+							})
+						end
+					end
+				},
 
 				update = function(self)
 					self.realHeight = self.root.realHeight - 48

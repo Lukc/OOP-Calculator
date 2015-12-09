@@ -7,18 +7,6 @@ local Widget = require "ui.widget"
 
 local _M = {}
 
-_M.knownKeys = {
-	LeftParen = "(",
-	RightParen = ")",
-	Space = " ",
-	Equals = "=",
-	Percent = "%",
-	Slash = "/",
-	Asterisk = "*",
-	Minus = "-",
-	Plus = "+"
-}
-
 ---
 -- @todo Text color.
 -- @todo Text alignments (vertical AND horizontal).
@@ -35,11 +23,16 @@ function _M:new(arg)
 		self:setLabel(arg.label)
 	end
 
-	if arg.onKeyUp then
-		self.customKeyUp = arg.onKeyUp
-	end
+	self.customKeyUp = arg.onKeyUp
+	self.onNewValue = arg.onNewValue
 
 	self.labelUpdate = false
+end
+
+function _M:onTextInput(event)
+	self:setLabel(self.labelText .. event.text)
+
+	return true
 end
 
 function _M:onKeyUp(event)
@@ -68,21 +61,18 @@ function _M:onKeyUp(event)
 			if #self.labelText > 0 then
 				self:setLabel(self.labelText:sub(1, #self.labelText - 1))
 			end
+		elseif key == "Return" then
+			return true, self:onNewValue(self.labelText)
 		elseif #key == 1 then
-			self:setLabel(self.labelText .. key)
 		else
-			local k = _M.knownKeys[key]
-
-			if k then
-				self:setLabel(self.labelText .. k)
-			else
-				io.stderr:write("<TextInput> Unhandled key: ", key, "\n")
-			end
+			io.stderr:write("<TextInput> Unhandled key: ", key, "\n")
 		end
 	end
 
 	return true
 end
+
+function _M:onNewValue() end
 
 function _M:onClick(event)
 	self:setFocus()
@@ -101,8 +91,11 @@ function _M:update()
 	if self.labelUpdate then
 		self.label, err =
 			self.root.fonts[1]:renderUtf8(self.labelText, "solid", 0xFFFFFF)
-		self.labelTexture =
-			self.root.renderer:createTextureFromSurface(self.label)
+
+		if self.label then
+			self.labelTexture =
+				self.root.renderer:createTextureFromSurface(self.label)
+		end
 
 		self.labelUpdate = nil
 	end
