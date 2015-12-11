@@ -15,8 +15,6 @@ local _M = {}
 function _M:new(arg)
 	Widget.new(self, arg)
 
-	self.label = arg.label
-
 	self.labelText = ""
 
 	if arg.label then
@@ -78,6 +76,10 @@ function _M:onClick(event)
 	self:setFocus()
 end
 
+function _M:onFocusChange()
+	self.labelUpdate = true
+end
+
 function _M:setLabel(text)
 	self.labelText = text
 	self.labelUpdate = true
@@ -89,8 +91,13 @@ function _M:update()
 	local err
 
 	if self.labelUpdate then
-		self.label, err =
-			self.root.fonts[1]:renderUtf8(self.labelText, "solid", 0xFFFFFF)
+		if self.focused then
+			self.label, err = self.root.fonts[1]:
+				renderUtf8(self.labelText .. "_", "solid", 0x000000)
+		else
+			self.label, err = self.root.fonts[1]:
+				renderUtf8(self.labelText, "solid", 0x111111)
+		end
 
 		if self.label then
 			self.labelTexture =
@@ -110,18 +117,18 @@ function _M:draw(renderer)
 	}
 
 	if self.focused then
-		renderer:setDrawColor(0xFF00FF)
+		renderer:setDrawColor(0xDDDDDD)
 	else
-		renderer:setDrawColor(0x880088)
+		renderer:setDrawColor(0xAAAAAA)
 	end
-	renderer:drawRect(rectangle)
+	renderer:fillRect(rectangle)
 
-	if self.label then
+	if self.labelTexture then
 		local _, _, width, height = self.labelTexture:query()
 
 		renderer:copy(self.labelTexture, nil, {
 			x = self.x,
-			y = self.y,
+			y = self.y + (self.height - height) / 2,
 			w = width, h = height
 		})
 	end

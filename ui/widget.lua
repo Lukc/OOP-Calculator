@@ -50,7 +50,7 @@ function _M:drawChildren(renderer)
 end
 
 function _M:draw(renderer)
-	renderer:setDrawColor(0xFF0000)
+	renderer:setDrawColor(0x000000)
 	renderer:drawRect {
 		w = self.realWidth,
 		h = self.realHeight,
@@ -197,11 +197,14 @@ function _M:update()
 	self:updateChildren()
 end
 
+function _M:onFocusChange() end
+
 function _M:setFocus()
 	local root = self.root
 
 	for i = 1, #root.focused do
 		root.focused[i].focused = false
+		root.focused[i]:onFocusChange()
 		root.focused[i] = nil
 	end
 
@@ -210,6 +213,7 @@ function _M:setFocus()
 		e.focused = true
 
 		root.focused[#root.focused+1] = e
+		root.focused[#root.focused]:onFocusChange()
 
 		e = e.parent
 	end

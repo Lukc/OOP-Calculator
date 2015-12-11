@@ -12,7 +12,7 @@ function _M:addChild(child)
 	Widget.addChild(self, child)
 
 	if child.height == math.huge then
-		io.stderr:writee("<Column.addChild> child.height == math.huge\n")
+		io.stderr:write("<Column.addChild> child.height == math.huge\n")
 	end
 end
 

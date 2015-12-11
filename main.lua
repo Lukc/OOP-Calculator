@@ -1,6 +1,7 @@
 
 local sdl = require "SDL"
 
+local parser = require "parser.parser"
 local ui = require "ui.init"
 
 local _M = {}
@@ -11,12 +12,16 @@ function _M.FormulaeInput()
 		height = 72,
 		onNewValue = function(self, v)
 			_M.cleanFormulaeTab(self.parent)
+
+			if #self.labelText > 0 then
+				print(parser.parse(self.labelText))
+			end
 		end
 	}
 end
 
 function _M.cleanFormulaeTab(e)
-	for i = 2, #e.children do
+	for i = 2, #e.children - 1 do
 		local child = e.children[i]
 
 		if child.labelText == "" then
@@ -29,6 +34,11 @@ function _M.cleanFormulaeTab(e)
 	local child = e.children[#e.children]
 	if child.labelText ~= "" then
 		e:addChild(_M.FormulaeInput{})
+
+		local c = e.children
+		local tmp = c[#c]
+		c[#c] = c[#c-1]
+		c[#c-1] = tmp
 	end
 end
 
@@ -68,6 +78,40 @@ local w = ui.Window {
 
 				_M.FormulaeInput(),
 
+				ui.Column {
+					width = math.huge;
+					height = math.huge;
+
+					x = 0;
+
+					ui.Row {
+						height = 72;
+						width = math.huge;
+						ui.Button { height = math.huge; width = 95; label = "+" },
+						ui.Button { height = math.huge; width = 95; label = "-" },
+						ui.Button { height = math.huge; width = 95; label = "/" },
+						ui.Button { height = math.huge; width = 95; label = "*" },
+					},
+
+					ui.Row {
+						height = 72;
+						width = math.huge;
+						ui.Button { height = math.huge; width = 95; label = "^" },
+						ui.Button { height = math.huge; width = 95; label = "cos" },
+						ui.Button { height = math.huge; width = 95; label = "sin" },
+						ui.Button { height = math.huge; width = 95; label = "tan" },
+					},
+
+					ui.Row {
+						height = 72;
+						width = math.huge;
+						ui.Button { height = math.huge; width = 95; label = "sqrt" },
+						ui.Button { height = math.huge; width = 95; label = "log" },
+						ui.Button { height = math.huge; width = 95; label = "ln" },
+						ui.Button { height = math.huge; width = 95; label = "*" },
+					},
+				},
+
 				update = function(self)
 					self.realHeight = self.root.realHeight - 48
 				end
@@ -75,8 +119,8 @@ local w = ui.Window {
 			ui.DrawBox {
 				id = "drawbox"
 				-- Drawing curves here.
-			}
-		}
+			},
+		},
 	}
 }
 

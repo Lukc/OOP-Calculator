@@ -1,5 +1,5 @@
 
-local lexer = require "lexer"
+local lexer = require "parser.lexer"
 
 local _M = {}
 
@@ -99,7 +99,7 @@ local secondPassExpressions = {
 }
 
 function _M.secondPass(input)
-	require("pprint")(input)
+	require("parser.pprint")(input)
 end
 
 setmetatable(_M, {

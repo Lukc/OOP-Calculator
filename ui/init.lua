@@ -46,8 +46,13 @@ function _M:run(elements)
 	for i = 1, #elements do
 		local element = elements[i]
 
-		element.renderer:setDrawColor {0, 0, 0}
+		element.renderer:setDrawColor(0xFFFFFF)
 		element.renderer:clear()
+		--[[element.renderer:drawRect {
+			w = element.realWidth,
+			h = element.realHeight,
+			x = 0, y = 0
+		}]]
 
 		if element.draw then
 			element:draw(element.renderer)

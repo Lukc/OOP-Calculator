@@ -5,8 +5,8 @@ local Widget = require "ui.widget"
 local _M = {}
 
 function _M:draw(renderer)
-	renderer:setDrawColor(0xFF00FF)
-	renderer:drawRect {
+	renderer:setDrawColor(0xEEEEEE)
+	renderer:fillRect {
 		w = self.realWidth,
 		h = self.realHeight,
 		x = self.x,
