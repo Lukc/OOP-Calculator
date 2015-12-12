@@ -40,6 +40,8 @@ function _M.FormulaeInput()
 
 					drawData[f] = {}
 
+					print(parser.eval(t, {x = 42}))
+
 					print("Should execute now.")
 				end
 			end

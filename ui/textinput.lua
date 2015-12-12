@@ -59,7 +59,7 @@ function _M:onKeyUp(event)
 			if #self.labelText > 0 then
 				self:setLabel(self.labelText:sub(1, #self.labelText - 1))
 			end
-		elseif key == "Return" then
+		elseif key == "Return" or key == "KPEnter" then
 			return true, self:onNewValue(self.labelText)
 		elseif #key == 1 then
 		else

@@ -94,6 +94,9 @@ local secondPassExpressions = {
 					}
 				end
 			end
+		end,
+		eval = function(self, env)
+			return _M.eval(self.rvalue, env)
 		end
 	},
 	{
@@ -102,17 +105,40 @@ local secondPassExpressions = {
 			for i =  _end, start, -1 do
 				local str = lexemes[i].value
 
-				for _, char in pairs{"+", "-"} do
+				for _, char in pairs{"+"} do
 					if str == char then
 						return {
 							lvalue = _M.secondPass(lexemes, start, i - 1),
 							rvalue = _M.secondPass(lexemes, i + 1, _end),
-							type = char == "+" and
-								"sum" or "subtraction"
+							type = "sum"
 						}
 					end
 				end
 			end
+		end,
+		eval = function(self, env)
+			return _M.eval(self.lvalue, env) + _M.eval(self.rvalue, env)
+		end
+	},
+	{
+		type = "subtraction",
+		parse = function(lexemes, start, _end)
+			for i =  _end, start, -1 do
+				local str = lexemes[i].value
+
+				for _, char in pairs{"-"} do
+					if str == char then
+						return {
+							lvalue = _M.secondPass(lexemes, start, i - 1),
+							rvalue = _M.secondPass(lexemes, i + 1, _end),
+							type = "subtraction"
+						}
+					end
+				end
+			end
+		end,
+		eval = function(self, env)
+			return _M.eval(self.lvalue, env) - _M.eval(self.rvalue, env)
 		end
 	},
 	{
@@ -121,17 +147,40 @@ local secondPassExpressions = {
 			for i =  _end, start, -1 do
 				local str = lexemes[i].value
 
-				for _, char in pairs{"*", "/"} do
+				for _, char in pairs{"*", "×"} do
 					if str == char then
 						return {
 							lvalue = _M.secondPass(lexemes, start, i - 1),
 							rvalue = _M.secondPass(lexemes, i + 1, _end),
-							type = char == "*" and
-								"product" or "quotient"
+							type = "product"
 						}
 					end
 				end
 			end
+		end,
+		eval = function(self, env)
+			return _M.eval(self.lvalue, env) * _M.eval(self.rvalue, env)
+		end
+	},
+	{
+		type = "quotient",
+		parse = function(lexemes, start, _end)
+			for i =  _end, start, -1 do
+				local str = lexemes[i].value
+
+				for _, char in pairs{"/", "÷", ":"} do
+					if str == char then
+						return {
+							lvalue = _M.secondPass(lexemes, start, i - 1),
+							rvalue = _M.secondPass(lexemes, i + 1, _end),
+							type = "quotient"
+						}
+					end
+				end
+			end
+		end,
+		eval = function(self, env)
+			return _M.eval(self.lvalue, env) / _M.eval(self.rvalue, env)
 		end
 	},
 	{
@@ -149,6 +198,9 @@ local secondPassExpressions = {
 					}
 				end
 			end
+		end,
+		eval = function(self, env)
+			return math.pow(_M.eval(self.lvalue, env), _M.eval(self.rvalue, env))
 		end
 	},
 	{
@@ -159,6 +211,9 @@ local secondPassExpressions = {
 			else
 				print(lexemes[start].type, lexemes[start].value)
 			end
+		end,
+		eval = function(self, env)
+			return env[self.value] or (0 / 0) -- -nan
 		end
 	},
 	{
@@ -169,6 +224,9 @@ local secondPassExpressions = {
 			else
 				print(lexemes[start].type, lexemes[start].value)
 			end
+		end,
+		eval = function(self)
+			return tonumber(self.value)
 		end
 	}
 }
@@ -241,6 +299,18 @@ function _M.secondPass(input, start, _end)
 	end
 
 	return output
+end
+
+function _M.eval(expr, env)
+	for i = 1, #secondPassExpressions do
+		local t = secondPassExpressions[i]
+
+		if t.type == expr.type then
+			return t.eval(expr, env)
+		end
+	end
+
+	return
 end
 
 setmetatable(_M, {
