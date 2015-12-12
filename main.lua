@@ -41,8 +41,10 @@ function _M.FormulaeInput()
 					drawData[f] = {}
 
 					local w = self.root.realWidth
+					local s = math.floor(- w / 2)
+					local e = math.floor(  w / 2)
 
-					for i = math.floor(- w / 2), math.ceil(w / 2) do
+					for i = s, e, 0.1 do
 						drawData[f][i] = parser.eval(t, {x = i})
 					end
 				end
@@ -62,7 +64,7 @@ function _M.cleanFormulaeTab(e)
 		end
 	end
 
-	local child = e.children[#e.children]
+	local child = e.children[#e.children-1]
 	if child.labelText ~= "" then
 		e:addChild(_M.FormulaeInput{})
 
@@ -158,10 +160,15 @@ local w = ui.Window {
 						renderer:setDrawColor(0x000000)
 
 						for x, y in pairs(values) do
-							renderer:drawPoint {
-								x = 380 + self.root.realWidth / 2 + x,
-								y = 80 + self.root.realHeight / 2 - y
-							}
+							local x = 380 + self.root.realWidth / 2 + x
+							local y = 48 + self.root.realHeight / 2 - y
+
+							if y > 48 then
+								renderer:drawPoint {
+									x = x,
+									y = y
+								}
+							end
 						end
 					end
 				end
