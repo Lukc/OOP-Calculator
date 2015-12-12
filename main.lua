@@ -40,9 +40,11 @@ function _M.FormulaeInput()
 
 					drawData[f] = {}
 
-					print(parser.eval(t, {x = 42}))
+					local w = self.root.realWidth
 
-					print("Should execute now.")
+					for i = math.floor(- w / 2), math.ceil(w / 2) do
+						drawData[f][i] = parser.eval(t, {x = i})
+					end
 				end
 			end
 		end
@@ -148,7 +150,20 @@ local w = ui.Window {
 			ui.DrawBox {
 				id = "drawbox",
 				drawData = drawData,
-				onDraw = function(self)
+				onDraw = function(self, renderer)
+					-- FIXME: We should be using its position and size
+					--        instead of hardcoded offsets and the size
+					--        of the whole fucking window.
+					for f, values in pairs(drawData) do
+						renderer:setDrawColor(0x000000)
+
+						for x, y in pairs(values) do
+							renderer:drawPoint {
+								x = 380 + self.root.realWidth / 2 + x,
+								y = 80 + self.root.realHeight / 2 - y
+							}
+						end
+					end
 				end
 			},
 		},
