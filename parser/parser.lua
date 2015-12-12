@@ -67,7 +67,7 @@ function _M.firstPass(input, start, _end)
 		end
 
 		if not matched then
-			print(input[index].value, "... not matched")
+			print(input[index].value, "... ignored by pass 1")
 
 			-- Keeping lexemes here.
 			output[#output+1] = input[index]
@@ -81,25 +81,116 @@ end
 
 local secondPassExpressions = {
 	{
-		type = "Assignment",
+		type = "assignment",
 		parse = function(lexemes, start, _end)
 			for i = start, _end do
 				local str = lexemes[i]
 
 				if str == "=" then
 					return {
-						lvalue = _M.parse(lexemes, start, i - 1),
-						rvalue = _M.parse(lexemes, i + 1, _end),
+						lvalue = _M.secondPass(lexemes, start, i - 1),
+						rvalue = _M.secondPass(lexemes, i + 1, _end),
 						type = "assignment"
 					}
 				end
 			end
 		end
+	},
+	{
+		type = "sum",
+		parse = function(lexemes, start, _end)
+			for i =  _end, start, -1 do
+				local str = lexemes[i].value
+
+				for _, char in pairs{"+", "-"} do
+					if str == char then
+						return {
+							lvalue = _M.secondPass(lexemes, start, i - 1),
+							rvalue = _M.secondPass(lexemes, i + 1, _end),
+							type = char == "+" and
+								"sum" or "subtraction"
+						}
+					end
+				end
+			end
+		end
+	},
+	{
+		type = "product",
+		parse = function(lexemes, start, _end)
+			for i =  _end, start, -1 do
+				local str = lexemes[i].value
+
+				for _, char in pairs{"*", "/"} do
+					if str == char then
+						return {
+							lvalue = _M.secondPass(lexemes, start, i - 1),
+							rvalue = _M.secondPass(lexemes, i + 1, _end),
+							type = char == "*" and
+								"product" or "quotient"
+						}
+					end
+				end
+			end
+		end
+	},
+	{
+		type = "number",
+		parse = function(lexemes, start, _end)
+			if start == _end and lexemes[start].type == "number" then
+				return lexemes[start]
+			else
+				print(lexemes[start].type, lexemes[start].value)
+			end
+		end
 	}
 }
 
-function _M.secondPass(input)
-	require("parser.pprint")(input)
+function _M.secondPass(input, start, _end)
+	start = start or 1
+	_end = _end or #input
+
+	local output
+
+	local i = 1
+	while i <= #secondPassExpressions and not output do
+		local expression = secondPassExpressions[i]
+		
+		output = expression.parse(input, start, _end)
+
+		if output then
+			if (not output.value and not (output.lvalue and output.rvalue))
+				or output.type == "error"
+				or (output.lvalue and output.lvalue.type == "error")
+				or (output.rvalue and output.rvalue.type == "error" ) then
+				print("Oh, shit…")
+
+				-- FIXME: Properly return error value.
+				return {
+					type = "error",
+					value = output.type == "error" and output.value
+				}
+			end
+		end
+
+		i = i + 1
+	end
+
+	if not output then
+		print("[", start, "..", _end,  "]", "... not matched")
+		io.write(" >> ")
+		for i = start, _end do
+			io.write(" ", tostring(input[i].value))
+		end
+		io.write("\n")
+
+		return {
+			type = "error",
+			value = "unrecognized syntax"
+		}
+	end
+
+	return output
 end
 
 setmetatable(_M, {
@@ -108,7 +199,7 @@ setmetatable(_M, {
 	end
 })
 
-_M "w(t,f) = (4+7)/3.1415*cos(42 * t-pi/2 * f) - f^(t-3)"
+--_M "w(t,f) = (4+7)/3.1415*cos(42 * t-pi/2 * f) - f^(t-3)"
 
 return _M
 

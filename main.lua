@@ -6,6 +6,12 @@ local ui = require "ui.init"
 
 local _M = {}
 
+local drawData = {}
+
+local fnames = {
+	"f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"
+}
+
 function _M.FormulaeInput()
 	return ui.TextInput {
 		width = math.huge,
@@ -14,7 +20,28 @@ function _M.FormulaeInput()
 			_M.cleanFormulaeTab(self.parent)
 
 			if #self.labelText > 0 then
-				print(parser.parse(self.labelText))
+				local t = parser(self.labelText)
+
+				require("parser.pprint")(t)
+
+				if t.type == "assignment" then
+					print("Assignment syntax is still unsupported. :’(")
+				else
+					local n = #fnames
+
+					for i = 1, #self.parent.children do
+						if self.parent.children[i] == self then
+							n = i
+							break
+						end
+					end
+
+					local f = fnames[n]
+
+					drawData[f] = {}
+
+					print("Should execute now.")
+				end
 			end
 		end
 	}
@@ -117,8 +144,10 @@ local w = ui.Window {
 				end
 			},
 			ui.DrawBox {
-				id = "drawbox"
-				-- Drawing curves here.
+				id = "drawbox",
+				drawData = drawData,
+				onDraw = function(self)
+				end
 			},
 		},
 	}
