@@ -135,6 +135,33 @@ local secondPassExpressions = {
 		end
 	},
 	{
+		type = "power",
+		parse = function(lexemes, start, _end)
+			local char = "^"
+			for i =  start, _end do
+				local str = lexemes[i].value
+
+				if str == char then
+					return {
+						lvalue = _M.secondPass(lexemes, start, i - 1),
+						rvalue = _M.secondPass(lexemes, i + 1, _end),
+						type = "power"
+					}
+				end
+			end
+		end
+	},
+	{
+		type = "symbol",
+		parse = function(lexemes, start, _end)
+			if start == _end and lexemes[start].type == "symbol" then
+				return lexemes[start]
+			else
+				print(lexemes[start].type, lexemes[start].value)
+			end
+		end
+	},
+	{
 		type = "number",
 		parse = function(lexemes, start, _end)
 			if start == _end and lexemes[start].type == "number" then
@@ -146,11 +173,34 @@ local secondPassExpressions = {
 	}
 }
 
+secondPassExpressions[#secondPassExpressions+1] = {
+		type = "virtual",
+		parse = function(lexemes, start, _end)
+			for i = 1, #secondPassExpressions do
+				local type = secondPassExpressions[i].type
+
+				if start == _end and lexemes[start].type == type then
+					return lexemes[start]
+				end
+			end
+		end
+	}
+
 function _M.secondPass(input, start, _end)
 	start = start or 1
 	_end = _end or #input
 
 	local output
+
+	for i = start, _end do
+		local expr = input[i]
+
+		if expr.type == "sub-expression" then
+			input[i] = _M.secondPass(expr.value, 1, #expr.value)
+
+			require("parser.pprint")(input[i])
+		end
+	end
 
 	local i = 1
 	while i <= #secondPassExpressions and not output do
