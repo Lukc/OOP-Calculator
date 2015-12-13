@@ -31,7 +31,7 @@ local function getFName(self)
 end
 
 function updateFormulaData(self)
-	if #self.labelText > 0 then
+	if self.labelText and #self.labelText > 0 then
 		local t = parser(self.labelText)
 
 		require("parser.pprint")(t)
@@ -59,8 +59,8 @@ function updateFormulaData(self)
 			local step = 0.25
 
 			for i = s, e, step do
-				env.x = i
-				drawData[f][i] = parser.eval(t, env)
+				env.x = i / scaleX
+				drawData[f][i] = parser.eval(t, env) * scaleY
 
 				-- To take care of floating point errors. 0.05px is ≃ 0px
 				if i > s + 0.05 then
@@ -70,8 +70,8 @@ function updateFormulaData(self)
 					-- FIXME: Also check that it’s not out of screen…
 					if diff > 1 then
 						for j = i - step, i, 1 / math.max(diff, 25) do
-							env.x = j
-							drawData[f][j] = parser.eval(t, env)
+							env.x = j / scaleX
+							drawData[f][j] = parser.eval(t, env) * scaleY
 						end
 					end
 				end
@@ -145,6 +145,14 @@ local function InputButton(arg)
 	return ui.Button(arg)
 end
 
+local function updateGraphics(s)
+	local l = s.root:getElementById("formulaeList").children
+
+	for i = 1, #l do
+		updateFormulaData(l[i])
+	end
+end
+
 local w = ui.Window {
 	title = "Calooplator",
 	flags = { sdl.window.Resizable },
@@ -181,6 +189,8 @@ local w = ui.Window {
 
 					if nv then
 						scaleX = nv
+
+						updateGraphics(self)
 					else
 						self:setLabel(tostring(scaleX))
 					end
@@ -197,6 +207,8 @@ local w = ui.Window {
 
 					if nv then
 						scaleY = nv
+
+						updateGraphics(self)
 					else
 						self:setLabel(tostring(scaleY))
 					end
