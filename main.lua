@@ -46,6 +46,12 @@ function updateFormulaData(self)
 			}
 			self:setLabel(nil, color)
 
+			local env = {}
+
+			for key, value in pairs(math) do
+				env[key] = value
+			end
+
 			local w = self.root:getElementById("drawbox").realWidth
 			local s = math.floor(-w / 2)
 			local e = math.ceil( w / 2)
@@ -53,7 +59,8 @@ function updateFormulaData(self)
 			local step = 0.25
 
 			for i = s, e, step do
-				drawData[f][i] = parser.eval(t, {x = i})
+				env.x = i
+				drawData[f][i] = parser.eval(t, env)
 
 				-- To take care of floating point errors. 0.05px is ≃ 0px
 				if i > s + 0.05 then
@@ -63,7 +70,8 @@ function updateFormulaData(self)
 					-- FIXME: Also check that it’s not out of screen…
 					if diff > 1 then
 						for j = i - step, i, 1 / math.max(diff, 25) do
-							drawData[f][j] = parser.eval(t, {x = j})
+							env.x = j
+							drawData[f][j] = parser.eval(t, env)
 						end
 					end
 				end
@@ -235,8 +243,8 @@ local w = ui.Window {
 						width = math.huge;
 						InputButton { height = math.huge; width = 95; label = "sqrt" },
 						InputButton { height = math.huge; width = 95; label = "log" },
-						InputButton { height = math.huge; width = 95; label = "ln" },
-						InputButton { height = math.huge; width = 95; label = "*" },
+						InputButton { height = math.huge; width = 95; label = "log10" },
+						InputButton { height = math.huge; width = 95; label = "abs" },
 					},
 				},
 

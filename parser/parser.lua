@@ -13,7 +13,7 @@ end
 
 local firstPassExpressions = {
 	{
-		type = "Parenthesis",
+		type = "parenthesis",
 		parse = function(lexemes, start, _end)
 			local str = lexemes[start].value
 
@@ -31,6 +31,44 @@ local firstPassExpressions = {
 					value = "error",
 					type = "unclosed parenthesis"
 				}
+			end
+		end
+	},
+	{
+		type = "function call",
+		parse = function(lexemes, start, _end)
+			local fname = lexemes[start]
+
+			if fname.type == "symbol" then
+				if lexemes[start+1] and lexemes[start+1].value == "(" then
+					for i = start + 2, _end do
+						if lexemes[i].value == ")" then
+							local arg = {}
+
+							local s = start + 2
+							for j = start + 2, i do
+								local c = lexemes[j].value
+								if c == "," or c == ")" then
+									arg[#arg + 1] =
+										_M.firstPass(lexemes, s, j - 1)
+
+									s = j + 1
+								end
+							end
+
+							return {
+								lvalue = fname.value,
+								rvalue = arg,
+								type = "function call"
+							}, i
+						end
+					end
+
+					return {
+						value = "error",
+						type = "unclosed parenthesis"
+					}
+				end
 			end
 		end
 	}
@@ -201,6 +239,34 @@ local secondPassExpressions = {
 		end,
 		eval = function(self, env)
 			return math.pow(_M.eval(self.lvalue, env), _M.eval(self.rvalue, env))
+		end
+	},
+	{
+		type = "function call",
+		parse = function(lexemes, start, _end)
+			if start == _end and lexemes[start].type == "function call" then
+				local expr = lexemes[start]
+				local arg = {}
+
+				for i = 1, #expr.rvalue do
+					arg[#arg+1] = _M.secondPass(expr.rvalue[i])
+				end
+
+				return {
+					type = "function call",
+					lvalue = expr.lvalue,
+					rvalue = arg
+				}
+			end
+		end,
+		eval = function(self, env)
+			local arg = {}
+
+			for i = 1, #self.rvalue do
+				arg[#arg+1] = _M.eval(self.rvalue[i], env)
+			end
+
+			return env[self.lvalue](table.unpack(arg))
 		end
 	},
 	{
