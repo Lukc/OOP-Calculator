@@ -112,6 +112,7 @@ local w = ui.Window {
 			ui.Widget { width = 120, height = math.huge },
 		},
 		ui.Row {
+			width = math.huge,
 			ui.Column {
 				id = "formulaeList",
 
@@ -162,6 +163,12 @@ local w = ui.Window {
 			ui.DrawBox {
 				id = "drawbox",
 				drawData = drawData,
+				height = math.huge,
+				-- Hack.
+				onUpdate = function(self)
+					self.realWidth =
+						self.parent.realWidth - self.parent.children[1].realWidth
+				end,
 				onDraw = function(self, renderer)
 					-- FIXME: We should be using its position and size
 					--        instead of hardcoded offsets and the size
@@ -170,10 +177,10 @@ local w = ui.Window {
 						renderer:setDrawColor(0x000000)
 
 						for x, y in pairs(values) do
-							local x = 380 + self.root.realWidth / 2 + x
-							local y = 48 + self.root.realHeight / 2 - y
+							local x = self.x + self.root.realWidth / 2 + x
+							local y = self.y + self.root.realHeight / 2 - y
 
-							if y > 48 then
+							if y > self.y then
 								renderer:drawPoint {
 									x = x,
 									y = y
