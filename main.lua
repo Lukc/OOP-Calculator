@@ -6,6 +6,7 @@ local ui = require "ui.init"
 
 local _M = {}
 
+local scaleX, scaleY = 1, 1
 local drawData = {}
 
 local fnames = {
@@ -59,6 +60,7 @@ function updateFormulaData(self)
 					local n1, n2 = drawData[f][i-step], drawData[f][i]
 					local diff = math.abs(n1 - n2)
 
+					-- FIXME: Also check that it’s not out of screen…
 					if diff > 1 then
 						for j = i - step, i, 1 / math.max(diff, 25) do
 							drawData[f][j] = parser.eval(t, {x = j})
@@ -156,10 +158,42 @@ local w = ui.Window {
 			height = 48,
 			width = math.huge,
 
-			-- Tests. Should be text boxes/labels.
-			ui.Button { width = 120, height = math.huge, label = "Test" },
-			ui.Widget { width = 120, height = math.huge },
-			ui.Widget { width = 120, height = math.huge },
+			-- Scale.
+			-- XXX: Those Buttons should be Labels, but I was, like, REALLY too
+			-- lazy to implement that properly (and to edit both TextInput and
+			-- Buttons to inherit from them)
+			ui.Button {
+				width = 70, height = math.huge, label = "dx:"
+			},
+			ui.TextInput {
+				width = 120, height = math.huge,
+				label = "1", color = 0xFFFFFF,
+				onNewValue = function(self, v)
+					local nv = tonumber(v)
+
+					if nv then
+						scaleX = nv
+					else
+						self:setLabel(tostring(scaleX))
+					end
+				end
+			},
+			ui.Button {
+				width = 70, height = math.huge, label = "dy:"
+			},
+			ui.TextInput {
+				width = 120, height = math.huge,
+				label = "1", color = 0xFFFFFF,
+				onNewValue = function(self, v)
+					local nv = tonumber(v)
+
+					if nv then
+						scaleY = nv
+					else
+						self:setLabel(tostring(scaleY))
+					end
+				end
+			},
 		},
 		ui.Row {
 			width = math.huge,
