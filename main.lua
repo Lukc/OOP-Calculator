@@ -108,6 +108,26 @@ function _M.cleanFormulaeTab(e)
 	end
 end
 
+local function InputButton(arg)
+	arg.onClick = function(self)
+		local l = self.parent.parent.parent.children
+		for i = 1, #l - 1 do
+			local e = l[i]
+
+			if e.focused then
+				print("!!!")
+				e:setLabel(e.labelText .. self.labelText)
+
+				break
+			end
+		end
+
+		print("Uhhh???")
+	end
+
+	return ui.Button(arg)
+end
+
 local w = ui.Window {
 	title = "Calooplator",
 	flags = { sdl.window.Resizable },
@@ -154,28 +174,28 @@ local w = ui.Window {
 					ui.Row {
 						height = 72;
 						width = math.huge;
-						ui.Button { height = math.huge; width = 95; label = "+" },
-						ui.Button { height = math.huge; width = 95; label = "-" },
-						ui.Button { height = math.huge; width = 95; label = "/" },
-						ui.Button { height = math.huge; width = 95; label = "*" },
+						InputButton { height = math.huge; width = 95; label = "+" },
+						InputButton { height = math.huge; width = 95; label = "-" },
+						InputButton { height = math.huge; width = 95; label = "/" },
+						InputButton { height = math.huge; width = 95; label = "*" },
 					},
 
 					ui.Row {
 						height = 72;
 						width = math.huge;
-						ui.Button { height = math.huge; width = 95; label = "^" },
-						ui.Button { height = math.huge; width = 95; label = "cos" },
-						ui.Button { height = math.huge; width = 95; label = "sin" },
-						ui.Button { height = math.huge; width = 95; label = "tan" },
+						InputButton { height = math.huge; width = 95; label = "^" },
+						InputButton { height = math.huge; width = 95; label = "cos" },
+						InputButton { height = math.huge; width = 95; label = "sin" },
+						InputButton { height = math.huge; width = 95; label = "tan" },
 					},
 
 					ui.Row {
 						height = 72;
 						width = math.huge;
-						ui.Button { height = math.huge; width = 95; label = "sqrt" },
-						ui.Button { height = math.huge; width = 95; label = "log" },
-						ui.Button { height = math.huge; width = 95; label = "ln" },
-						ui.Button { height = math.huge; width = 95; label = "*" },
+						InputButton { height = math.huge; width = 95; label = "sqrt" },
+						InputButton { height = math.huge; width = 95; label = "log" },
+						InputButton { height = math.huge; width = 95; label = "ln" },
+						InputButton { height = math.huge; width = 95; label = "*" },
 					},
 				},
 
