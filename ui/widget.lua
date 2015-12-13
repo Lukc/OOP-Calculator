@@ -39,6 +39,21 @@ function _M:removeChild(child)
 	end
 end
 
+function _M:getElementById(id)
+	if self.id == id then
+		return self
+	end
+
+	for i = 1, #self.children do
+		local child = self.children[i]
+		local r = child:getElementById(id)
+
+		if r then
+			return r
+		end
+	end
+end
+
 function _M:drawChildren(renderer)
 	for i = 1, #self.children do
 		local child = self.children[i]
@@ -175,6 +190,10 @@ function _M:onEvent(event)
 			r = child:onEvent(event)
 		end
 
+		if not r and child.customEvent then
+			r = child:customEvent(event)
+		end
+
 		if r then
 			return r
 		end
@@ -235,6 +254,7 @@ function _M:new(arg)
 	end
 
 	self.customUpdate = arg.update
+	self.customEvent = arg.onEvent
 
 	if self.height then
 		self.realHeight = self.height
@@ -243,6 +263,8 @@ function _M:new(arg)
 	if self.width then
 		self.realWidth = self.width
 	end
+
+	self.id = arg.id
 end
 
 return Object(_M)

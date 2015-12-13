@@ -10,7 +10,7 @@ function _M:draw(renderer)
 	self:onUpdate()
 
 	step = 50
-	start = self.x + (self.realWidth / 2) % step + step / 2
+	start = self.x + (self.realWidth / 2) % step
 	_end = self.x + self.realWidth
 
 	local pair
@@ -31,7 +31,7 @@ function _M:draw(renderer)
 	end
 
 	step = 50
-	start = self.y + (self.realHeight / 2) % step + step / 2
+	start = self.y + (self.realHeight / 2) % step
 	_end = self.y + self.realHeight
 	for i = start, _end, step do
 		pair = not pair

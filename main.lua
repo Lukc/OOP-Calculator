@@ -25,6 +25,44 @@ local function getFName(self)
 	return fnames[n]
 end
 
+function updateFormulaData(self)
+	if #self.labelText > 0 then
+		local t = parser(self.labelText)
+
+		require("parser.pprint")(t)
+
+		if t.type == "assignment" then
+			print("Assignment syntax is still unsupported. :’(")
+		else
+			local f = getFName(self)
+
+			drawData[f] = {}
+
+			local w = self.root:getElementById("drawbox").realWidth
+			local s = math.floor(-w / 2)
+			local e = math.ceil( w / 2)
+
+			local step = 0.25
+
+			for i = s, e, step do
+				drawData[f][i] = parser.eval(t, {x = i})
+
+				-- To take care of floating point errors. 0.05px is ≃ 0px
+				if i > s + 0.05 then
+					local n1, n2 = drawData[f][i-step], drawData[f][i]
+					local diff = math.abs(n1 - n2)
+
+					if diff > 1 then
+						for j = i - step, i, 1 / math.min(diff, 25) do
+							drawData[f][j] = parser.eval(t, {x = j})
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 function _M.FormulaeInput()
 	return ui.TextInput {
 		width = math.huge,
@@ -32,26 +70,11 @@ function _M.FormulaeInput()
 		onNewValue = function(self, v)
 			_M.cleanFormulaeTab(self.parent)
 
-			if #self.labelText > 0 then
-				local t = parser(self.labelText)
-
-				require("parser.pprint")(t)
-
-				if t.type == "assignment" then
-					print("Assignment syntax is still unsupported. :’(")
-				else
-					local f = getFName(self)
-
-					drawData[f] = {}
-
-					local w = self.root.realWidth
-					local s = math.floor(- w / 2)
-					local e = math.floor(  w / 2)
-
-					for i = s, e, 0.1 do
-						drawData[f][i] = parser.eval(t, {x = i})
-					end
-				end
+			updateFormulaData(self)
+		end,
+		onEvent = function(self, event)
+			if event.type == sdl.event.WindowEvent then
+				updateFormulaData(self)
 			end
 		end
 	}
@@ -177,8 +200,8 @@ local w = ui.Window {
 						renderer:setDrawColor(0x000000)
 
 						for x, y in pairs(values) do
-							local x = self.x + self.root.realWidth / 2 + x
-							local y = self.y + self.root.realHeight / 2 - y
+							local x = self.x + self.realWidth / 2 + x
+							local y = self.y + self.realHeight / 2 - y
 
 							if y > self.y then
 								renderer:drawPoint {
