@@ -12,6 +12,19 @@ local fnames = {
 	"f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"
 }
 
+local function getFName(self)
+	local n = #fnames
+
+	for i = 1, #self.parent.children do
+		if self.parent.children[i] == self then
+			n = i
+			break
+		end
+	end
+
+	return fnames[n]
+end
+
 function _M.FormulaeInput()
 	return ui.TextInput {
 		width = math.huge,
@@ -27,16 +40,7 @@ function _M.FormulaeInput()
 				if t.type == "assignment" then
 					print("Assignment syntax is still unsupported. :’(")
 				else
-					local n = #fnames
-
-					for i = 1, #self.parent.children do
-						if self.parent.children[i] == self then
-							n = i
-							break
-						end
-					end
-
-					local f = fnames[n]
+					local f = getFName(self)
 
 					drawData[f] = {}
 
@@ -54,10 +58,16 @@ function _M.FormulaeInput()
 end
 
 function _M.cleanFormulaeTab(e)
-	for i = 2, #e.children - 1 do
+	local start = #e.children == 1 and 2 or 1
+
+	for i = start, #e.children - 1 do
 		local child = e.children[i]
 
 		if child.labelText == "" then
+			local f = getFName(child)
+
+			drawData[f] = nil
+
 			e:removeChild(child)
 
 			break
