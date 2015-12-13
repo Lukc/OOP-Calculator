@@ -60,7 +60,7 @@ function updateFormulaData(self)
 					local diff = math.abs(n1 - n2)
 
 					if diff > 1 then
-						for j = i - step, i, 1 / math.min(diff, 25) do
+						for j = i - step, i, 1 / math.max(diff, 25) do
 							drawData[f][j] = parser.eval(t, {x = j})
 						end
 					end
