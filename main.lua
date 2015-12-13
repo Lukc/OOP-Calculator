@@ -12,6 +12,10 @@ local fnames = {
 	"f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"
 }
 
+local colors = {
+	0x660000, 0x006600, 0x000066, 0x666600, 0x660066, 0x006600, 0x666666
+}
+
 local function getFName(self)
 	local n = #fnames
 
@@ -22,7 +26,7 @@ local function getFName(self)
 		end
 	end
 
-	return fnames[n]
+	return fnames[n], colors[n % #colors]
 end
 
 function updateFormulaData(self)
@@ -34,9 +38,12 @@ function updateFormulaData(self)
 		if t.type == "assignment" then
 			print("Assignment syntax is still unsupported. :’(")
 		else
-			local f = getFName(self)
+			local f, color = getFName(self)
 
-			drawData[f] = {}
+			drawData[f] = {
+				color = color
+			}
+			self:setLabel(nil, color)
 
 			local w = self.root:getElementById("drawbox").realWidth
 			local s = math.floor(-w / 2)
@@ -217,17 +224,19 @@ local w = ui.Window {
 					--        instead of hardcoded offsets and the size
 					--        of the whole fucking window.
 					for f, values in pairs(drawData) do
-						renderer:setDrawColor(0x000000)
+						renderer:setDrawColor(values.color)
 
 						for x, y in pairs(values) do
-							local x = self.x + self.realWidth / 2 + x
-							local y = self.y + self.realHeight / 2 - y
+							if type(x) == "number" then
+								local x = self.x + self.realWidth / 2 + x
+								local y = self.y + self.realHeight / 2 - y
 
-							if y > self.y then
-								renderer:drawPoint {
-									x = x,
-									y = y
-								}
+								if y > self.y then
+									renderer:drawPoint {
+										x = x,
+										y = y
+									}
+								end
 							end
 						end
 					end

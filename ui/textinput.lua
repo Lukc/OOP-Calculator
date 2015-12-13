@@ -80,8 +80,15 @@ function _M:onFocusChange()
 	self.labelUpdate = true
 end
 
-function _M:setLabel(text)
-	self.labelText = text
+function _M:setLabel(text, color)
+	if text then
+		self.labelText = text
+	end
+
+	if color then
+		self.color = color
+	end
+
 	self.labelUpdate = true
 end
 
@@ -91,12 +98,13 @@ function _M:update()
 	local err
 
 	if self.labelUpdate then
+		local color = self.color or 0x000000
 		if self.focused then
 			self.label, err = self.root.fonts[1]:
-				renderUtf8(self.labelText .. "_", "solid", 0x000000)
+				renderUtf8(self.labelText .. "_", "solid", color)
 		else
 			self.label, err = self.root.fonts[1]:
-				renderUtf8(self.labelText, "solid", 0x111111)
+				renderUtf8(self.labelText, "solid", color)
 		end
 
 		if self.label then
