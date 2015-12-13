@@ -17,14 +17,14 @@ function _M:new(arg)
 
 	self.labelText = ""
 
+	self.labelUpdate = false
+
 	if arg.label then
-		self:setLabel(arg.label)
+		self:setLabel(arg.label, arg.color)
 	end
 
 	self.customKeyUp = arg.onKeyUp
 	self.onNewValue = arg.onNewValue
-
-	self.labelUpdate = false
 end
 
 function _M:onTextInput(event)
