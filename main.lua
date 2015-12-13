@@ -89,8 +89,8 @@ function _M.FormulaeInput()
 
 			updateFormulaData(self)
 		end,
-		onEvent = function(self, event)
-			if event.type == sdl.event.WindowEvent then
+		update = function(self, event)
+			if self.root.resized then
 				updateFormulaData(self)
 			end
 		end

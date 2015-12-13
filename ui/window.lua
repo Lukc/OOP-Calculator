@@ -40,7 +40,15 @@ function _M:addChild(child)
 end
 
 function _M:update()
+	self.lastWidth, self.lastHeight = self.realWidth, self.realHeight
 	self.realWidth, self.realHeight = self.window:getSize()
+
+	if self.lastWidth ~= self.realWidth
+	or self.lastHeight ~= self.realHeight then
+		self.resized = true
+	else
+		self.resized = false
+	end
 
 	self:updateChildren()
 end
