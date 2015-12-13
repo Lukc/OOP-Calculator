@@ -52,7 +52,9 @@ function updateFormulaData(self)
 				env[key] = value
 			end
 
-			local w = self.root:getElementById("drawbox").realWidth
+			local drawBox = self.root:getElementById("drawbox")
+			local w = drawBox.realWidth
+			local h = drawBox.realHeight
 			local s = math.floor(-w / 2)
 			local e = math.ceil( w / 2)
 
@@ -67,8 +69,9 @@ function updateFormulaData(self)
 					local n1, n2 = drawData[f][i-step], drawData[f][i]
 					local diff = math.abs(n1 - n2)
 
-					-- FIXME: Also check that it’s not out of screen…
-					if diff > 1 then
+					local outOfScreen = n1 > h / 2 or n1 < - h / 2
+
+					if diff > 1 and not outOfScreen then
 						for j = i - step, i, 1 / math.max(diff, 25) do
 							env.x = j / scaleX
 							drawData[f][j] = parser.eval(t, env) * scaleY
