@@ -42,15 +42,17 @@ function _M:update()
 end
 
 function _M:draw(renderer)
-	local rectangle = {
-		w = self.realWidth or 0,
-		h = self.realHeight or 0,
-		x = self.x or 0,
-		y = self.y or 0
-	}
+	if self.debug then
+		local rectangle = {
+			w = self.realWidth or 0,
+			h = self.realHeight or 0,
+			x = self.x or 0,
+			y = self.y or 0
+		}
 
-	renderer:setDrawColor(0x00FF44)
-	renderer:drawRect(rectangle)
+		renderer:setDrawColor(0x00FF44)
+		renderer:drawRect(rectangle)
+	end
 
 	self:drawChildren(renderer)
 end

@@ -33,7 +33,7 @@ function _M:update()
 
 	if self.labelUpdate then
 		self.label =
-			self.root.fonts[1]:renderUtf8(self.labelText, "solid", 0x000000)
+			self.root.fonts[1]:renderUtf8(self.labelText, "solid", 0xFFFFFF)
 		self.labelTexture =
 			self.root.renderer:createTextureFromSurface(self.label)
 
@@ -49,13 +49,11 @@ function _M:draw(renderer)
 		y = self.y or 0
 	}
 
-	-- FIXME: Print text.
+	--renderer:setDrawColor(0x000000)
+	--renderer:drawRect(rectangle)
 
-	renderer:setDrawColor(0x000000)
-	renderer:drawRect(rectangle)
-
-	renderer:setDrawColor(0x444444)
-	renderer:drawRect {
+	renderer:setDrawColor(0x44AACC)
+	renderer:fillRect {
 		w = self.realWidth - 2,
 		h = self.realHeight - 2,
 		x = self.x + 1,

@@ -117,11 +117,14 @@ function _M:draw(renderer)
 	}
 
 	if self.focused then
-		renderer:setDrawColor(0xDDDDDD)
+		renderer:setDrawColor(0x77BBFF)
 	else
-		renderer:setDrawColor(0xAAAAAA)
+		renderer:setDrawColor(0x44CCDD)
 	end
 	renderer:fillRect(rectangle)
+
+	renderer:setDrawColor(0xFFFFFF)
+	renderer:drawRect(rectangle)
 
 	if self.labelTexture then
 		local _, _, width, height = self.labelTexture:query()
