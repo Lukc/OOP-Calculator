@@ -6,9 +6,13 @@ local _M = {}
 function _M.parse(input)
 	local lexemes = lexer(input)
 
-	local preParsedTree = _M.firstPass(lexemes)
+	local preParsedTree, err = _M.firstPass(lexemes)
 
-	return _M.secondPass(preParsedTree)
+	if preParsedTree then
+		return _M.secondPass(preParsedTree)
+	else
+		return nil, err
+	end
 end
 
 local firstPassExpressions = {
@@ -28,8 +32,8 @@ local firstPassExpressions = {
 				end
 
 				return {
-					value = "error",
-					type = "unclosed parenthesis"
+					type = "error",
+					value = "unclosed parenthesis"
 				}
 			end
 		end
@@ -65,8 +69,8 @@ local firstPassExpressions = {
 					end
 
 					return {
-						value = "error",
-						type = "unclosed parenthesis"
+						type = "error",
+						value = "unclosed parenthesis"
 					}
 				end
 			end
@@ -93,6 +97,10 @@ function _M.firstPass(input, start, _end)
 
 			if value then
 				matched = true
+
+				if value.type == "error" then
+					return nil, value
+				end
 
 				index = newIndex + 1
 
