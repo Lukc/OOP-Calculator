@@ -6,7 +6,7 @@ local ui = require "ui.init"
 
 local _M = {}
 
-local scaleX, scaleY = 1, 1
+local scaleX, scaleY = 25, 25
 local drawData = {}
 
 local fnames = {
@@ -191,13 +191,15 @@ local w = ui.Window {
 			},
 			ui.TextInput {
 				width = 120, height = math.huge,
-				label = "1", color = 0xFFFFFF,
+				label = tostring(scaleX), color = 0xFFFFFF,
 				onNewValue = function(self, v)
 					local nv = tonumber(v)
 
 					if nv then
 						scaleX = nv
 
+						self.root:getElementById("drawbox")
+							:setScale(scaleX, scaleY)
 						updateGraphics(self)
 					else
 						self:setLabel(tostring(scaleX))
@@ -209,13 +211,15 @@ local w = ui.Window {
 			},
 			ui.TextInput {
 				width = 120, height = math.huge,
-				label = "1", color = 0xFFFFFF,
+				label = tostring(scaleY), color = 0xFFFFFF,
 				onNewValue = function(self, v)
 					local nv = tonumber(v)
 
 					if nv then
 						scaleY = nv
 
+						self.root:getElementById("drawbox")
+							:setScale(scaleX, scaleY)
 						updateGraphics(self)
 					else
 						self:setLabel(tostring(scaleY))
@@ -307,6 +311,8 @@ local w = ui.Window {
 		},
 	}
 }
+
+w:getElementById("drawbox"):setScale(scaleX, scaleY)
 
 while ui:run {w} do end
 

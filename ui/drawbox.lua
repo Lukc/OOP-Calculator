@@ -9,7 +9,7 @@ function _M:draw(renderer)
 
 	self:onUpdate()
 
-	step = 50
+	step = self.scaleX
 	start = self.x + (self.realWidth / 2) % step
 	_end = self.x + self.realWidth
 
@@ -30,7 +30,7 @@ function _M:draw(renderer)
 		})
 	end
 
-	step = 50
+	step = self.scaleY
 	start = self.y + (self.realHeight / 2) % step
 	_end = self.y + self.realHeight
 	for i = start, _end, step do
@@ -54,8 +54,15 @@ function _M:draw(renderer)
 	end
 end
 
+function _M:setScale(x, y)
+	self.scaleX = x or self.scaleX
+	self.scaleY = y or self.scaleY
+end
+
 function _M:new(arg)
 	Widget.new(self, arg)
+
+	self.scaleX, self.scaleY = 50, 50
 
 	self.onDraw = arg.onDraw
 	self.onUpdate = arg.onUpdate
