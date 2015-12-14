@@ -15,44 +15,67 @@ function _M.parse(input)
 	end
 end
 
-local firstPassExpressions = {
-	{
-		type = "parenthesis",
-		parse = function(lexemes, start, _end)
-			local str = lexemes[start].value
+local firstPassExpressions = {}
 
-			if str == "(" then
-				for j = start + 1, _end do
-					if lexemes[j].value == ")" then
+firstPassExpressions[1] = {
+	type = "parenthesis",
+	parse = function(lexemes, start, _end)
+		local str = lexemes[start].value
+		local count = 1
+
+		if str == "(" then
+			for j = start + 1, _end do
+				if lexemes[j].value == "(" then
+					count = count + 1
+				elseif lexemes[j].value == ")" then
+					count = count - 1
+
+					if count == 0 then
 						return {
 							value = _M.firstPass(lexemes, start + 1, j - 1),
 							type = "sub-expression"
 						}, j
 					end
 				end
-
-				return {
-					type = "error",
-					value = "unclosed parenthesis"
-				}
 			end
-		end
-	},
-	{
-		type = "function call",
-		parse = function(lexemes, start, _end)
-			local fname = lexemes[start]
 
-			if fname.type == "symbol" then
-				if lexemes[start+1] and lexemes[start+1].value == "(" then
-					for i = start + 2, _end do
-						if lexemes[i].value == ")" then
+			return {
+				type = "error",
+				value = "unclosed parenthesis"
+			}
+		end
+	end
+}
+
+firstPassExpressions[2] = {
+	type = "function call",
+	parse = function(lexemes, start, _end)
+		local fname = lexemes[start]
+
+		if fname.type == "symbol" then
+			if lexemes[start+1] and lexemes[start+1].value == "(" then
+				local count = 1
+
+				for i = start + 2, _end do
+					if lexemes[i].value == "(" then
+						count = count + 1
+					elseif lexemes[i].value == ")" then
+						count = count - 1
+
+						if count == 0 then
 							local arg = {}
 
+							count = 1
 							local s = start + 2
 							for j = start + 2, i do
 								local c = lexemes[j].value
-								if c == "," or c == ")" then
+								if c == "(" then
+									count = count + 1
+								elseif c ==")" then
+									count = count - 1
+								end
+
+								if count == 0 and (c == "," or c == ")") then
 									arg[#arg + 1] =
 										_M.firstPass(lexemes, s, j - 1)
 
@@ -67,15 +90,15 @@ local firstPassExpressions = {
 							}, i
 						end
 					end
-
-					return {
-						type = "error",
-						value = "unclosed parenthesis"
-					}
 				end
+
+				return {
+					type = "error",
+					value = "unclosed parenthesis"
+				}
 			end
 		end
-	}
+	end
 }
 
 function _M.firstPass(input, start, _end)
@@ -337,6 +360,11 @@ local secondPassExpressions = {
 	},
 	{
 		type = "error",
+		parse = function(lexemes, start, _end)
+			if lexemes[start].type == "error" then
+				return lexemes[start]
+			end
+		end,
 		eval = function(self)
 			return 0/0
 		end
@@ -382,7 +410,7 @@ function _M.secondPass(input, start, _end)
 	local i = 1
 	while i <= #secondPassExpressions and not output do
 		local expression = secondPassExpressions[i]
-		
+
 		output = expression.parse(input, start, _end)
 
 		if output then
