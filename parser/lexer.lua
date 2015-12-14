@@ -6,7 +6,7 @@ local _M = {}
 local lexemes = {
 	{
 		type = "operator",
-		pattern = "[+-/*=^]"
+		pattern = "[+-/*=^÷−%]"
 	},
 	{
 		type = "symbol",

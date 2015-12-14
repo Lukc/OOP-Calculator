@@ -242,6 +242,26 @@ local secondPassExpressions = {
 		end
 	},
 	{
+		type = "modulo",
+		parse = function(lexemes, start, _end)
+			local char = "%"
+			for i =  _end, start, -1 do
+				local str = lexemes[i].value
+
+				if str == char then
+					return {
+						lvalue = _M.secondPass(lexemes, start, i - 1),
+						rvalue = _M.secondPass(lexemes, i + 1, _end),
+						type = "modulo"
+					}
+				end
+			end
+		end,
+		eval = function(self, env)
+			return _M.eval(self.lvalue, env) % _M.eval(self.rvalue, env)
+		end
+	},
+	{
 		type = "power",
 		parse = function(lexemes, start, _end)
 			local char = "^"
