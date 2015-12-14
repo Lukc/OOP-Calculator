@@ -166,17 +166,29 @@ local secondPassExpressions = {
 
 				for _, char in pairs{"-"} do
 					if str == char then
-						return {
-							lvalue = _M.secondPass(lexemes, start, i - 1),
-							rvalue = _M.secondPass(lexemes, i + 1, _end),
-							type = "subtraction"
-						}
+						local lvalue
+						if start <= i-1 then
+							return {
+								lvalue = _M.secondPass(lexemes, start, i-1),
+								rvalue = _M.secondPass(lexemes, i + 1, _end),
+								type = "subtraction"
+							}
+						else
+							return {
+								value = _M.secondPass(lexemes, i + 1, _end),
+								type = "subtraction"
+							}
+						end
 					end
 				end
 			end
 		end,
 		eval = function(self, env)
-			return _M.eval(self.lvalue, env) - _M.eval(self.rvalue, env)
+			if self.lvalue then
+				return _M.eval(self.lvalue, env) - _M.eval(self.rvalue, env)
+			else
+				return - _M.eval(self.value, env)
+			end
 		end
 	},
 	{
@@ -294,6 +306,12 @@ local secondPassExpressions = {
 		eval = function(self)
 			return tonumber(self.value)
 		end
+	},
+	{
+		type = "error",
+		eval = function(self)
+			return 0/0
+		end
 	}
 }
 
@@ -313,6 +331,13 @@ secondPassExpressions[#secondPassExpressions+1] = {
 function _M.secondPass(input, start, _end)
 	start = start or 1
 	_end = _end or #input
+
+	if #input == 0 or start > _end then
+		return {
+			type = "error",
+			value = "empty expression"
+		}
+	end
 
 	local output
 

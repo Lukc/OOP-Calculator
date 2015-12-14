@@ -69,11 +69,10 @@ function _M.lex(input)
 
 		if not matched then
 			io.stderr:write("<lexer.lex> Unexpected characters or smthing.\n")
-			return nil, {
+			return {
 				type = "error", 
 				value = "unexpected character(s)",
 				at = inputIndex,
-
 			}
 		end
 	end
