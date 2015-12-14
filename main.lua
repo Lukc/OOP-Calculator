@@ -52,6 +52,14 @@ function updateFormulaData(self)
 				env[key] = value
 			end
 
+			if self.focused then
+				local x = self.root:getElementById("abscissa").labelText or 0
+				local e = self.root:getElementById("coolvalue")
+
+				env.x = tonumber(x)
+				e:setLabel(tostring(parser.eval(t, env)))
+			end
+
 			local drawBox = self.root:getElementById("drawbox")
 			local w = drawBox.realWidth
 			local h = drawBox.realHeight
@@ -156,7 +164,7 @@ end
 local function updateGraphics(s)
 	local l = s.root:getElementById("formulaeList").children
 
-	for i = 1, #l do
+	for i = 1, #l - 1 do
 		updateFormulaData(l[i])
 	end
 end
@@ -226,6 +234,24 @@ local w = ui.Window {
 					end
 				end
 			},
+			ui.Widget { width = 35, height = math.huge },
+			ui.Button {
+				width = 40,
+				height = math.huge,
+				label = "X:"
+			},
+			ui.TextInput {
+				width = 120,
+				id = "abscissa",
+				color = 0xFFFFFF,
+				height = math.huge,
+			},
+			ui.Button {
+				width = 360,
+				id = "coolvalue",
+				height = math.huge,
+				label = tostring(0/0)
+			}
 		},
 		ui.Row {
 			width = math.huge,
